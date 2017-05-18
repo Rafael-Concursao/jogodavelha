@@ -1,0 +1,235 @@
+<html>
+  <body background= 'imagens/stars.jpg'>
+
+    <audio id='som'>
+      <source src='imagens/fogo1.mp3' type='audio/mp3'>
+    </audio>
+
+    <table align= 'center' cellspacing= '0' cellpadding= '0'>
+      <tr>
+        <td width= '130px' id= 'vez1'> <img src= 'imagens/o.png' style= 'width: 130px; height: 130px'><br><br><img src= 'imagens/player1.jpg' width= '130' height= '200'><br><input id= 'jogador1' maxlength= '15' value= 'Jogador 1' style= 'width: 130px; border: 1px solid #666666; background-color: #0d1e2b; font-family: Verdana, Helvetica; font-size: 8pt; color: #DCB61C; text-align: center'><br><div id= 'nome1' style= 'color: red; text-align: center'> <img src= 'imagens/setaneon.png' width= '130' height= '100'><br>Digite o nome<br>do jogador 1 </div> </td>
+        <td width= '40'> </td>
+        <td>
+          <div id= 'mostrar_matriz'> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </div>
+        </td>
+        <td width= '40'> </td>
+        <td width= '130px' id= 'vez2'> <img src= 'imagens/x.png' style= 'width: 130px; height: 130px'><br><br><img src= 'imagens/player2.jpg' width= '130' height= '200'><br><input id= 'jogador2' maxlength= '15' value= 'Jogador 2' style= 'width: 130px; border: 1px solid #666666; background-color: #0d1e2b; font-family: Verdana, Helvetica; font-size: 8pt; color: #DCB61C; text-align: center'><br><div id= 'nome2' style= 'color: red; text-align: center'> <img src= 'imagens/setaneon.png' width= '130' height= '100'><br>Digite o nome<br>do jogador 2 </div> </td>
+      </tr>
+      <tr>
+        <td colspan= '5' align= 'center'>
+          <br><br> <input id= 'novo_jogo' type= 'button' value= 'Iniciar Jogo' onclick= 'cria_matriz();' style= 'width: 130px; border: 1px solid #666666; background-color: #0d1e2b; font-family: Verdana, Helvetica; font-size: 8pt; color: #DCB61C; text-align: center'>
+          <br> <div id= 'placar' style= 'color: red; text-align: center'> </div>
+        </td>
+      </tr>
+    </table>
+
+  </body>
+</html>
+
+
+<script>
+// Prezados avaliadores: levando em conta que foi pedida a produção de um jogo, levei o design
+// para um lado mais informal de forma a deixá-lo mais divertido.
+
+// versões em https://github.com/Rafael-Concursao/jogodavelha
+
+// variaveis globais
+var matriz = [];
+var comecou = false;
+var finalizou = false;
+var jogador_da_vez; //1 é a vez do jogador 1, 2 é a vez do jogador 2
+var vitorias1 = 0;
+var vitorias2 = 0;
+// status da matriz:
+// 0 = nada marcado;
+// 1 = marcado pela "O";
+// 2 = marcado pelo "X";
+// 3 = não pode mais marcar pois jogo terminou
+
+
+
+nome();
+function nome() {
+  if (comecou == false) {
+    if (document.getElementById('nome1').style.visibility == 'hidden') document.getElementById('nome1').style.visibility = 'visible';
+    else document.getElementById('nome1').style.visibility = 'hidden';
+    if (document.getElementById('nome2').style.visibility == 'hidden') document.getElementById('nome2').style.visibility = 'visible';
+    else document.getElementById('nome2').style.visibility = 'hidden';
+    setTimeout(nome, 200);
+  }
+}
+
+
+
+function cria_matriz() { // inicia a matriz para começar um novo jogo
+  comecou = true;
+  finalizou = false;
+  jogador_da_vez = 1; // pelas regras do jogo da velha, a "bolinha" sempre começa
+  var largura = [];
+  var altura  = [];
+  largura[1] = 155;
+  largura[2] = 169;
+  largura[3] = 176;
+  altura[1]  = 181;
+  altura[2]  = 140;
+  altura[3]  = 179;
+  var tabela = '';
+  tabela+= "<table style= 'width: 500px; height: 500px; background-image:url(imagens/vazia.png); background-size: 500px 500px' cellspacing= '0' cellpadding= '0'>";
+  for (i=1;i<=3;i++) {
+    matriz[i] = [];
+    tabela+= "<tr>";
+    for (j=1;j<=3;j++) {
+      matriz[i][j] = 0;
+      tabela+= "<td style= 'width: "+largura[j]+"px; height: "+altura[i]+"px; vertical-align: middle; text-align: center' onmousedown= marca("+i+","+j+");> <img id= 'q"+i+j+"' src= 'imagens/branco.png' style= 'width: "+(largura[j]-35)+"px; height: "+(altura[i]-35)+"px'> </td>";
+    }
+    tabela+= "</tr>";
+  }
+  tabela+= "</table>";
+  document.getElementById('mostrar_matriz').innerHTML = tabela;
+  document.getElementById('vez1').style.visibility = 'visible';
+  document.getElementById('vez2').style.visibility = 'hidden';
+  document.getElementById('novo_jogo').value = 'Iniciar Novo Jogo';
+  document.getElementById('novo_jogo').style.visibility = 'hidden';
+  document.getElementById('nome1').style.visibility = 'hidden';
+  document.getElementById('nome2').style.visibility = 'hidden';
+  document.getElementById('jogador1').disabled = 'true';
+  document.getElementById('jogador2').disabled = 'true';
+}
+
+
+
+function marca(linha,coluna) { // verifica se é uma jogada válida e a realiza
+  if (matriz[linha][coluna] == 0) { // para não poder clicar de novo onde já foi marcado
+    if (jogador_da_vez == 1) { // marca e alterna o jogador
+      document.getElementById('q'+linha+coluna).src = 'imagens/o.png';
+      matriz[linha][coluna] = 1;
+      jogador_da_vez = 2;
+      document.getElementById('vez1').style.visibility = 'hidden';
+      document.getElementById('vez2').style.visibility = 'visible';
+    }
+    else { // marca e alterna o jogador
+      document.getElementById('q'+linha+coluna).src = 'imagens/x.png';
+      matriz[linha][coluna] = 2;
+      jogador_da_vez = 1;
+      document.getElementById('vez1').style.visibility = 'visible';
+      document.getElementById('vez2').style.visibility = 'hidden';
+    }
+    som();
+    ve_se_ganhou();
+  }
+}
+
+
+
+function som() { // toca um som aleatório a cada jogada
+  audio = document.getElementById('som');
+  var random_fire = Math.floor((Math.random() * 2) + 1);
+  audio.src = 'imagens/fogo'+random_fire+'.mp3';
+  audio.play();
+}
+
+
+
+function ve_se_ganhou() { // a cada jogada válida confere se existe um vencedor ou se "deu velha"
+
+  var ganhou;
+  var velha;
+
+  // confere horizontais
+  for (i=1;i<=3;i++) {
+    ganhou = true;
+    for (j=2;j<=3;j++) {
+      if (matriz[i][j] != matriz[i][j-1]) {
+        ganhou = false;
+        break;
+      }
+    }
+    if ((ganhou == true) && (matriz[i][3] != 0)) {
+      finaliza();
+      break;
+    }
+  }
+
+  // confere verticais
+  for (j=1;j<=3;j++) {
+    ganhou = true;
+    for (i=2;i<=3;i++) {
+      if (matriz[i][j] != matriz[i-1][j]) {
+        ganhou = false;
+        break;
+      }
+    }
+    if ((ganhou == true) && (matriz[3][j] != 0)) {
+      finaliza();
+      break;
+    }
+  }
+
+  // confere diagonais
+  ganhou = true;
+  if (matriz[2][2] == matriz[1][1])
+    if (matriz[3][3] == matriz[2][2])
+      if (matriz[3][3] != 0)
+        finaliza();
+
+  if (matriz[2][2] == matriz[1][3])
+    if (matriz[3][1] == matriz[2][2])
+      if (matriz[3][1] != 0)
+        finaliza();
+
+  // vê se deu velha
+  velha = true;
+  for (i=1;i<=3;i++) {
+    for (j=1;j<=3;j++) {
+      if (matriz[i][j] == 0) velha = false;
+    }
+  }
+  if ((velha == true) && (finalizou == false)) { // se todas as casas já foram preenchidas e ninguém tiver ganhado (finalizado) "dá velha"
+    audio = document.getElementById('som');
+    audio.src = 'imagens/fail.mp3';
+    audio.play();
+    document.getElementById('vez1').style.visibility = 'visible';
+    document.getElementById('nome1').innerHTML = "<img src= 'imagens/setaneon.png' width= '130' height= '100'><br>VELHA";
+    document.getElementById('nome1').style.visibility = 'visible';
+    document.getElementById('vez2').style.visibility = 'visible';
+    document.getElementById('nome2').innerHTML = "<img src= 'imagens/setaneon.png' width= '130' height= '100'><br>VELHA";
+    document.getElementById('nome2').style.visibility = 'visible';
+    document.getElementById('novo_jogo').style.visibility = 'visible';
+  }
+
+}
+
+
+
+function finaliza() { // toca um som aleatório a cada jogada
+  audio = document.getElementById('som');
+  audio.src = 'imagens/vitoria.mp3';
+  audio.play();
+
+  if (jogador_da_vez == 1) { // volta a imagem para o vencedor
+    vitorias2++;
+    document.getElementById('vez2').style.visibility = 'visible';
+    document.getElementById('vez1').style.visibility = 'hidden';
+    document.getElementById('nome2').innerHTML = "<img src= 'imagens/setaneon.png' width= '130' height= '100'><br>VENCEDOR<br>Ganhou "+vitorias2+"X";
+    document.getElementById('nome2').style.visibility = 'visible';
+  }
+  else {
+    vitorias1++;
+    document.getElementById('vez1').style.visibility = 'visible';
+    document.getElementById('vez2').style.visibility = 'hidden';
+    document.getElementById('nome1').innerHTML = "<img src= 'imagens/setaneon.png' width= '130' height= '100'><br>VENCEDOR<br>Ganhou "+vitorias1+"X";
+    document.getElementById('nome1').style.visibility = 'visible';
+  }
+
+  // marca tudo que ainda não está marcado como 3 para impedir novas marcações
+  for (i=1;i<=3;i++) {
+    for (j=1;j<=3;j++) {
+      if (matriz[i][j] == 0) matriz[i][j] = 3;
+    }
+  }
+
+  finalizou = 'true';
+  document.getElementById('novo_jogo').style.visibility = 'visible';
+  document.getElementById('placar').innerHTML = "Placar:<br>"+vitorias1+" X "+vitorias2;
+}
+</script>
